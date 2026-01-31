@@ -3,46 +3,55 @@ layout: default
 title: Home
 ---
 
-<section class="py-20 bg-white border-b border-gray-50">
-    <div class="max-w-4xl mx-auto text-center px-6">
-        <h1 class="text-4xl md:text-6xl font-black text-gray-900 tracking-tight mb-6">
-            Explore the World of Malayalam Books
+<section class="pt-10 pb-6 bg-white">
+    <div class="max-w-4xl mx-auto text-left px-6">
+        <h1 class="text-4xl md:text-5xl font-black text-black tracking-tighter mb-2">
+            Discover Your Next Favorite Read
         </h1>
-        <p class="text-lg md:text-xl text-gray-500 max-w-2xl mx-auto font-medium leading-relaxed">
+        <p class="text-md md:text-lg text-gray-500 max-w-2xl font-medium leading-snug">
             {{ site.description }}
         </p>
     </div>
 </section>
 
-<div class="sticky top-20 z-40 bg-white/90 backdrop-blur-md border-b border-gray-100 py-4 mb-12">
-    <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row gap-4 justify-between items-center">
-        <div class="flex gap-2">
-            <button class="px-4 py-1.5 bg-gray-900 text-white text-xs font-bold rounded-full">All Reviews</button>
-            <button class="px-4 py-1.5 bg-gray-100 text-gray-600 text-xs font-bold rounded-full hover:bg-gray-200 transition">Latest</button>
-        </div>
-        <input type="text" id="bookSearch" placeholder="Search by book or author..." 
-        class="w-full md:w-80 px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition">
+<div class="sticky top-20 z-40 bg-white/90 backdrop-blur-md py-4 mb-8 border-b border-gray-50">
+    <div class="max-w-6xl mx-auto px-6 flex flex-wrap gap-4 items-center">
+        
+        <input type="text" id="bookSearch" placeholder="Search..." 
+        class="w-full md:w-48 px-0 py-2 bg-transparent border-b border-gray-200 text-sm focus:border-black outline-none transition">
+
+        <select id="ratingFilter" class="bg-transparent border-b border-gray-200 py-2 text-sm outline-none focus:border-black cursor-pointer">
+            <option value="0">All Ratings</option>
+            <option value="5">5 Stars</option>
+            <option value="4">4+ Stars</option>
+            <option value="3">3+ Stars</option>
+            <option value="2">2+ Stars</option>
+        </select>
+
+        <select id="categoryFilter" class="bg-transparent border-b border-gray-200 py-2 text-sm outline-none focus:border-black cursor-pointer">
+            <option value="all">All Genres</option>
+            <option value="novels">Novels</option>
+            <option value="stories">Stories</option>
+            <option value="others">Others</option>
+        </select>
     </div>
 </div>
 
 <div class="max-w-6xl mx-auto px-6 pb-24">
     <div id="bookGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
         {% for post in site.posts %}
-        <article class="book-card group cursor-pointer" onclick="window.location='{{ post.url }}'">
-            <div class="relative aspect-[2/3] mb-4 overflow-hidden rounded-lg bg-gray-100 shadow-sm group-hover:shadow-xl transition-all duration-500">
-                <img src="{{ post.image }}" alt="{{ post.title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
-                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors"></div>
+        <article class="book-card group cursor-pointer" 
+                 data-title="{{ post.title | lowercase }}" 
+                 data-rating="{{ post.rating }}" 
+                 data-category="{{ post.category | lowercase }}">
+            <div class="relative aspect-[2/3] mb-4 overflow-hidden rounded-sm bg-gray-100 shadow-sm group-hover:shadow-md transition-all duration-500" onclick="window.location='{{ post.url }}'">
+                <img src="{{ post.image }}" alt="{{ post.title }}" class="w-full h-full object-cover">
             </div>
-            
             <div class="space-y-1">
-                <h3 class="text-lg font-bold text-gray-900 leading-tight group-hover:text-indigo-600 transition-colors">
-                    {{ post.title }}
-                </h3>
-                <p class="text-sm text-gray-400 font-medium">By {{ post.author | default: "Malayalam Author" }}</p>
+                <h3 class="text-md font-bold text-black leading-tight">{{ post.title }}</h3>
                 <div class="flex items-center gap-2 pt-1">
-                    <span class="text-amber-400 text-xs font-bold">★ {{ post.rating }}</span>
-                    <span class="text-gray-300">•</span>
-                    <span class="text-[10px] uppercase tracking-widest font-black text-gray-400">Review</span>
+                    <span class="text-black text-[10px] font-black uppercase tracking-widest">{{ post.category | default: "Review" }}</span>
+                    <span class="text-gray-400 text-[10px]">★ {{ post.rating }}</span>
                 </div>
             </div>
         </article>
@@ -51,13 +60,34 @@ title: Home
 </div>
 
 <script>
-    // Live search script
-    document.getElementById('bookSearch').addEventListener('input', function(e) {
-        let term = e.target.value.toLowerCase();
-        let cards = document.querySelectorAll('.book-card');
+    const searchInput = document.getElementById('bookSearch');
+    const ratingSelect = document.getElementById('ratingFilter');
+    const categorySelect = document.getElementById('categoryFilter');
+    const cards = document.querySelectorAll('.book-card');
+
+    function filterBooks() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const minRating = parseFloat(ratingSelect.value);
+        const selectedCategory = categorySelect.value.toLowerCase();
+
         cards.forEach(card => {
-            let title = card.querySelector('h3').innerText.toLowerCase();
-            card.style.display = title.includes(term) ? 'block' : 'none';
+            const title = card.getAttribute('data-title');
+            const rating = parseFloat(card.getAttribute('data-rating'));
+            const category = card.getAttribute('data-category');
+
+            const matchesSearch = title.includes(searchTerm);
+            const matchesRating = rating >= minRating;
+            const matchesCategory = (selectedCategory === 'all' || category === selectedCategory);
+
+            if (matchesSearch && matchesRating && matchesCategory) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
         });
-    });
+    }
+
+    searchInput.addEventListener('input', filterBooks);
+    ratingSelect.addEventListener('change', filterBooks);
+    categorySelect.addEventListener('change', filterBooks);
 </script>
