@@ -3,45 +3,61 @@ layout: default
 title: Home
 ---
 
-<div class="bg-white py-16 mb-12 border-b border-slate-100">
+<section class="py-20 bg-white border-b border-gray-50">
     <div class="max-w-4xl mx-auto text-center px-6">
-        <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4">
-            Discover Your Next Favorite Read
+        <h1 class="text-4xl md:text-6xl font-black text-gray-900 tracking-tight mb-6">
+            Explore the World of Malayalam Books
         </h1>
-        <p class="text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto">
+        <p class="text-lg md:text-xl text-gray-500 max-w-2xl mx-auto font-medium leading-relaxed">
             {{ site.description }}
         </p>
     </div>
+</section>
+
+<div class="sticky top-20 z-40 bg-white/90 backdrop-blur-md border-b border-gray-100 py-4 mb-12">
+    <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row gap-4 justify-between items-center">
+        <div class="flex gap-2">
+            <button class="px-4 py-1.5 bg-gray-900 text-white text-xs font-bold rounded-full">All Reviews</button>
+            <button class="px-4 py-1.5 bg-gray-100 text-gray-600 text-xs font-bold rounded-full hover:bg-gray-200 transition">Latest</button>
+        </div>
+        <input type="text" id="bookSearch" placeholder="Search by book or author..." 
+        class="w-full md:w-80 px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition">
+    </div>
 </div>
 
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-    {% for post in site.posts %}
-    <article class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col hover:shadow-xl transition-all duration-300 group">
-        <div class="aspect-[3/4] overflow-hidden bg-slate-100">
-            <img src="{{ post.image }}" alt="{{ post.title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-        </div>
-        
-        <div class="p-6 flex flex-col flex-grow">
-            <h2 class="text-xl font-bold text-slate-900 mb-2 leading-tight">
-                {{ post.title }}
-            </h2>
-            <p class="text-slate-500 text-sm line-clamp-3 mb-6">
-                {{ post.excerpt | strip_html }}
-            </p>
-            
-            <div class="mt-auto pt-4 border-t border-slate-50 flex items-center justify-between">
-                <span class="text-indigo-600 font-bold text-sm italic">
-                    Rating: {{ post.rating }}/5
-                </span>
-                <a href="{{ post.url }}" class="text-sm font-bold text-slate-900 hover:text-indigo-600 transition">
-                    Read Review →
-                </a>
+<div class="max-w-6xl mx-auto px-6 pb-24">
+    <div id="bookGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
+        {% for post in site.posts %}
+        <article class="book-card group cursor-pointer" onclick="window.location='{{ post.url }}'">
+            <div class="relative aspect-[2/3] mb-4 overflow-hidden rounded-lg bg-gray-100 shadow-sm group-hover:shadow-xl transition-all duration-500">
+                <img src="{{ post.image }}" alt="{{ post.title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors"></div>
             </div>
-        </div>
-    </article>
-    {% else %}
-    <div class="col-span-full py-20 text-center">
-        <p class="text-slate-400 italic">Starting the journey... reviews coming soon!</p>
+            
+            <div class="space-y-1">
+                <h3 class="text-lg font-bold text-gray-900 leading-tight group-hover:text-indigo-600 transition-colors">
+                    {{ post.title }}
+                </h3>
+                <p class="text-sm text-gray-400 font-medium">By {{ post.author | default: "Malayalam Author" }}</p>
+                <div class="flex items-center gap-2 pt-1">
+                    <span class="text-amber-400 text-xs font-bold">★ {{ post.rating }}</span>
+                    <span class="text-gray-300">•</span>
+                    <span class="text-[10px] uppercase tracking-widest font-black text-gray-400">Review</span>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
     </div>
-    {% endfor %}
 </div>
+
+<script>
+    // Live search script
+    document.getElementById('bookSearch').addEventListener('input', function(e) {
+        let term = e.target.value.toLowerCase();
+        let cards = document.querySelectorAll('.book-card');
+        cards.forEach(card => {
+            let title = card.querySelector('h3').innerText.toLowerCase();
+            card.style.display = title.includes(term) ? 'block' : 'none';
+        });
+    });
+</script>
