@@ -1,0 +1,16 @@
+# Site Settings
+title: "Annayudegrandhalokam"
+description: "Your trusted companion in the world of books. Dive into a world of honest, insightful, and diverse book reviews - from thrilling fiction to inspiring non-fiction. Let us help you discover your next favorite read."
+url: "https://yourdomain.com"
+baseurl: ""
+
+# Collections
+collections:
+  posts:
+    output: true
+    permalink: /reviews/:title/
+
+# Plugins
+plugins:
+  - jekyll-seo-tag
+  - jekyll-sitemap
